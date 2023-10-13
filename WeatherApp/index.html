@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App del tiempo</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="card">
+
+        <div class="search">
+
+            <input type="text" placeholder="enter city name" spellcheck="false">
+            <button><img src="./Images/lupa.png"></button>
+
+        </div>
+        <div class="weather">
+            <img src="Images/sol.png" class="weather-icon">
+            <h1 class="temp">Temperatura</h1>
+            <h2 class="city">Introduzca ciudad en el buscador</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="Images/humedad.png">
+                    <div>
+                        <p class="humidity">X%</p>
+                        <p>humedad</p>
+                    </div>
+                    <div class="col-viento">
+                        <img src="Images/velovient.png">
+
+                    </div>
+                    <div>
+                        <p class="wind">X km/h</p>
+                        <p>Velocidad del viento</p>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="previ">
+                <div class="dia1">
+                    <h3 class="dia1p">Día 1</h3>
+                    <p class="dia1-temp">--°C</p>
+                    <img class="dia1_img" src="images/sol.png" alt="Icono">
+                </div>
+                <div class="dia2">
+                    <h3 class="dia2p">Día 2</h3>
+                    <p class="dia2-temp">--°C</p>
+                    <img class="dia2_img" src="images/sol.png" alt="Icono">
+                </div>
+                <div class="dia3">
+                    <h3 class="dia3p">Día 3</h3>
+                    <p class="dia3-temp">--°C</p>
+                    <img class="dia3_img" src="images/sol.png" alt="Icono">
+                </div>
+                <div class="dia4">
+                    <h3 class="dia4p">Día 4</h3>
+                    <p class="dia4-temp">--°C</p>
+                    <img class="dia4_img" src="images/sol.png" alt="Icono">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const apikey = "e4384eec830ada54733d50300beec670";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=";
+        const apiUrl2 = "http://api.openweathermap.org/data/2.5/forecast?units=metric&q=";
+
+        const searchBox = document.querySelector(".search input");
+        const searchBtn = document.querySelector(".search button");
+
+        async function checkWeather(city) {
+            const response = await fetch(apiUrl + city + `&appid=${apikey}`);
+            var data = await response.json();
+            console.log(data);
+
+            document.querySelector(".city").innerHTML = data.name;
+            document.querySelector(".temp").innerHTML = `${Math.round(data.main.temp - 273.15)}°C`;
+            document.querySelector(".humidity").innerHTML = data.main.humidity;
+            document.querySelector(".wind").innerHTML = data.wind.speed + "km/h";
+
+            const rutaImagenes = "./Images/";
+            const weatherIcon = document.querySelector(".weather-icon");
+
+            if (data.weather[0].main == "Clouds") {
+                weatherIcon.src = `${rutaImagenes}nubes.png`;
+            }
+            if (data.weather[0].main == "Clear") {
+                weatherIcon.src = `${rutaImagenes}sol.png`;
+            }
+            if (data.weather[0].main == "Rain") {
+                weatherIcon.src = `${rutaImagenes}lluvia.png`;
+            }
+            if (data.weather[0].main == "Drizzle") {
+                weatherIcon.src = `${rutaImagenes}llovizna.png`;
+            }
+        }
+
+        async function getWeatherForecast(city) {
+            const response = await fetch(`${apiUrl2}${city}&appid=${apikey}`);
+            const data = await response.json();
+            console.log(data);
+            let numero = 1;
+            for (let i = 8; i <= 32; i = i + 8) {
+                var fecha = new Date(data.list[i].dt_txt);//Flipas pa sacar el día Sat Oct 07 2023 21:00:00 GMT+0200 (hora de verano de Europa central)
+                var nombreDia = (fecha.toDateString()).substring(0, 3); //Los 3 primeros elementos del dt_txt
+                var dia = " ";
+                switch (nombreDia) {
+                    case "Mon":
+                        dia = "Lunes";
+                        break
+                    case "Tue":
+                        dia = "Martes";
+                        break
+                    case "Wed":
+                        dia = "Miércoles";
+                        break
+                    case "Thu":
+                        dia = "Jueves";
+                        break
+                    case "Fri":
+                        dia = "Viernes";
+                        break
+                    case "Sat":
+                        dia = "Sábado";
+                        break
+                    case "Sun":
+                        dia = "Domingo";
+                        break;
+                }
+                var selector = document.querySelector(`.dia${numero}p`);
+                selector.innerHTML = dia;
+
+                const weatherIcon = document.querySelector(`.dia${numero}_img`);
+                const rutaImagenes = "./Images/";
+
+                if (data.list[i].weather[0].main == "Clouds") {
+                    weatherIcon.src = `${rutaImagenes}nubes.png`;
+
+                }
+                if (data.list[i].weather[0].main == "Clear") {
+                    weatherIcon.src = `${rutaImagenes}sol.png`;
+                }
+                if (data.list[i].weather[0].main == "Rain") {
+                    weatherIcon.src = `${rutaImagenes}lluvia.png`;
+                }
+                if (data.list[i].weather[0].main == "Drizzle") {
+                    weatherIcon.src = `${rutaImagenes}llovizna.png`;
+                }
+
+                document.querySelector(`.dia${numero}-temp`).innerHTML = Math.round(data.list[i].main.temp) + " C";
+                numero += 1;
+            }
+
+        }
+
+        searchBtn.addEventListener("click", () => {
+            if (!searchBox.value) {
+                return alert("introduzca una ciudad");
+            } else {
+                checkWeather(searchBox.value);
+                getWeatherForecast(searchBox.value);
+            }
+
+        })
+
+    </script>
+
+</body>
+
+</html>
