@@ -6,7 +6,6 @@ utilizando peticiones a una API meteorológica para obtener los datos actuales d
 Características:
 Información meteorológica en tiempo real (temperatura, humedad, estado del cielo, etc.).
 Búsqueda por nombre de ciudad.
-Diseño responsivo adaptado para dispositivos móviles.
 Actualización dinámica de datos mediante llamadas a una API.
 Tecnologías utilizadas:
 HTML para la estructura del contenido.
